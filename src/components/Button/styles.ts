@@ -3,7 +3,6 @@ import styled from 'styled-components'
 import { IButtonStyledProps } from './interfaces'
 
 export const ButtonStyled = styled.button<IButtonStyledProps>`
-    width: 230px;
     height: 63px;
 
     border-radius: 20px;
@@ -19,8 +18,11 @@ export const ButtonStyled = styled.button<IButtonStyledProps>`
     justify-content: space-between;
     align-items: center;
     padding: 0px 30px;
+
+    text-transform: uppercase;
 `
 
 export const IconButton = styled.img` 
     width: 30px;
+    margin-right: 20px;
 `

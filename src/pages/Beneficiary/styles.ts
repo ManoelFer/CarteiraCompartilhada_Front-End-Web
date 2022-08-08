@@ -1,6 +1,6 @@
 import styled from 'styled-components'
 
-import { backgroundHome } from 'assets'
+import { backgroundBeneficiary } from 'assets'
 
 export const Container = styled.div`
     height: 100%;
@@ -11,7 +11,7 @@ export const Container = styled.div`
     align-items: center;
 
 
-    background-image: url(${backgroundHome});
+    background-image: url(${backgroundBeneficiary});
     background-repeat: round;
     background-size: cover;
 `

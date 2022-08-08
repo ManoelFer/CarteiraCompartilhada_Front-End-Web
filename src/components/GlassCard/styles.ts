@@ -9,14 +9,17 @@ export const Container = styled.div`
 
     box-shadow: 0 8px 32px 0 rgba(0,0,0,0.37);
 
-    height: 500px;
-    width: 900px;
+    height: auto;
+    width: 1000px;
     
     border-radius: 25px;
-    
 
-    @media (max-width: 900px) {
-        height: 600px;
-        margin: 0px 20px;
+    padding: 50px;
+    
+    @media (max-width: 1024px) {
+        margin: 150px 20px 0px 20px;
+
+        padding: 40px;
     }
+
 `

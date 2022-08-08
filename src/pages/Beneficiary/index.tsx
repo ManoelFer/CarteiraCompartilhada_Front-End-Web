@@ -1,19 +1,17 @@
-
-
-
 import { cryptoWalletAnimation } from 'assets'
 
-import { Button, GlassCard, Lottie } from 'components'
+import { Button, GlassCard, Header, Lottie } from 'components'
 
 import { ContainerButton, TextCard, TitleCard, Container } from './styles'
 
 
 
-export const Home = () => {
+export const Beneficiary = () => {
 
     return (
         <Container>
 
+            <Header />
             <GlassCard>
                 <Lottie
                     animationData={cryptoWalletAnimation}

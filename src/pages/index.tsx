@@ -1,2 +1,3 @@
 export { SignIn } from './SignIn';
-export { Home } from './Home';
+export { Beneficiary } from './Beneficiary';
+export { Admin } from './Admin';
