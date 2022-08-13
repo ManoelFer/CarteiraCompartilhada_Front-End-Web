@@ -24,7 +24,6 @@ export function Web3ContextProvider({
     const [isLoading, setIsLoading] = useState(false)
     const [isLogged, setIsLogged] = useState(false)
     const [currentAddress, setCurrentAddress] = useState()
-    const [isAdmin, setIsAdmin] = useState(false)
 
     useEffect(() => {
         const newWeb3Modal = new Web3Modal({
@@ -36,6 +35,7 @@ export function Web3ContextProvider({
     }, [])
 
     useEffect(() => {
+
         // connect automatically and without a popup if user is already connected
         if (web3Modal && web3Modal.cachedProvider) {
             connectWallet()
@@ -46,32 +46,49 @@ export function Web3ContextProvider({
     useEffect(() => {
         async function initialMethods() {
             await verifyIfIsAdmin()
+            await verifyIfIsBeneficiary()
         }
         if (SharedWalletContractDeployed && currentAddress) initialMethods()
 
     }, [SharedWalletContractDeployed, currentAddress])
 
 
-    const verifyIfIsAdmin = async () => {
+    const verifyIfIsAdmin = async (): boolean => {
         try {
             const owner = await SharedWalletContractDeployed.methods.owner().call()
 
             if (owner.toLowerCase() === currentAddress.toLowerCase()) {
-                setIsAdmin(true)
+                return true
             } else {
-                setIsAdmin(false)
+                return false
             }
         } catch (error) {
             console.log('Error in verify if user is admin => ', error)
         }
     }
 
+    const verifyIfIsBeneficiary = async (beneficiary?: string): boolean => {
+        try {
+            const beneficiaryResult = await SharedWalletContractDeployed.methods.beneficiaries(beneficiary || currentAddress).call()
+
+            if (beneficiaryResult.isAllowed) {
+                return true
+            } else {
+                return false
+            }
+        } catch (error) {
+            console.log('Error in verify if user is beneficiary => ', error)
+        }
+    }
 
     const changeCurrentAddress = async (web3InstanceParam) => {
         const address = await web3InstanceParam.eth.currentProvider.selectedAddress
 
         setCurrentAddress(address)
-        if (SharedWalletContractDeployed) verifyIfIsAdmin()
+        if (SharedWalletContractDeployed) {
+            verifyIfIsAdmin()
+            verifyIfIsBeneficiary()
+        }
     }
 
     const disconnectWallet = async () => {
@@ -79,7 +96,7 @@ export function Web3ContextProvider({
             await web3Modal.clearCachedProvider()
             setIsLogged(false)
         } catch (error) {
-            throw new Error(e)
+            throw new Error(error)
         }
     }
 
@@ -146,12 +163,11 @@ export function Web3ContextProvider({
         });
     }
 
-
-
     return (
         <Web3Context.Provider
             value={{
                 web3Instance,
+                web3Modal,
                 isLogged,
                 accounts,
                 isLoading,
@@ -160,7 +176,9 @@ export function Web3ContextProvider({
                 disconnectWallet,
                 currentAddress,
                 setIsLoading,
-                isAdmin
+
+                verifyIfIsAdmin,
+                verifyIfIsBeneficiary
             }}
         >
             {children}

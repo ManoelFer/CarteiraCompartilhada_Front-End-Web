@@ -2,6 +2,7 @@ import { ReactNode } from "react";
 
 export interface IWeb3ContextProps {
     web3Instance: any;
+    web3Modal: any;
     isLogged: boolean;
     accounts: any;
     isLoading: boolean;
@@ -10,7 +11,9 @@ export interface IWeb3ContextProps {
     connectWallet: () => void;
     disconnectWallet: () => void;
     currentAddress: string;
-    isAdmin: boolean;
+
+    verifyIfIsAdmin: (beneficiary?: string) => boolean;
+    verifyIfIsBeneficiary: (beneficiary?: string) => boolean;
 }
 
 export interface IWeb3ContextProviderProps {

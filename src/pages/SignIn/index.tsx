@@ -1,6 +1,6 @@
 
 import { useNavigate } from 'react-router-dom'
-import { useContext } from 'react'
+import { useContext, useEffect } from 'react'
 
 import { toast } from 'react-toastify'
 
@@ -11,26 +11,53 @@ import { Web3Context } from 'context'
 import { GlassCard, Button, Lottie } from 'components'
 
 import { Container, ContainerButton, TextCard, TitleCard } from './styles'
+import Swal from 'sweetalert2'
 
 
 export const SignIn = () => {
     const navigate = useNavigate()
-    const { connectWallet, isAdmin } = useContext(Web3Context)
+    const { connectWallet, verifyIfIsBeneficiary, verifyIfIsAdmin, setIsLoading } = useContext(Web3Context)
 
     const handleNavigate = async () => {
-
+        setIsLoading(true)
         try {
             await connectWallet()
 
-            toast.success('Sucesso ao conectar na carteira!', {
-                position: "top-center",
-            });
+            const isAdmin = await verifyIfIsAdmin()
+            const isBeneficiary = await verifyIfIsBeneficiary()
 
-            if (isAdmin) navigate('/admin')
 
-            // if (isBeneficiary) navigate('/beneficiary')
+            // setIsLoading(false)
+
+            if (isAdmin) {
+                toast.success('Bem-vindo administrador!', {
+                    position: "top-center",
+                });
+                return navigate('/admin')
+            }
+
+            if (isBeneficiary) {
+                toast.success('Bem-vindo beneficiário!', {
+                    position: "top-center",
+                });
+                return navigate('/beneficiary')
+            }
+
+            Swal.fire({
+                icon: 'warning',
+                title: 'Falha no Login',
+                text: "Para logar é necessário um endereço de Administrador ou Beneficiário! Caso você tenha um endereço de Administrador ou Beneficiário, mude e tente conectar novamente!",
+                heightAuto: false,
+                showClass: {
+                    popup: 'animate__animated animate__fadeInDown'
+                },
+                hideClass: {
+                    popup: 'animate__animated animate__fadeOutUp'
+                }
+            })
 
         } catch (error) {
+            // setIsLoading(false)
             toast.error("Erro ao conectar na carteira! Verifique se já não tem um processo aberto no metamask ou analise o erro completo no console log do navegador.", {
                 position: "top-center",
             })

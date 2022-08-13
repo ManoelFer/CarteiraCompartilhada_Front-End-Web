@@ -1,12 +1,30 @@
+import { useContext, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
+
 import { cryptoWalletAnimation } from 'assets'
 
 import { Button, GlassCard, Header, Lottie } from 'components'
 
+import { Web3Context } from 'context'
+
 import { ContainerButton, TextCard, TitleCard, Container } from './styles'
 
 
-
 export const Beneficiary = () => {
+    const navigate = useNavigate()
+    const { verifyIfIsBeneficiary, disconnectWallet, isLogged } = useContext(Web3Context)
+
+    useEffect(() => {
+        async function verifyAccess() {
+            const isAdmin = await verifyIfIsBeneficiary()
+            if (!isAdmin) {
+                disconnectWallet()
+                navigate('/login')
+            }
+        }
+
+        if (isLogged) verifyAccess()
+    }, [isLogged])
 
     return (
         <Container>

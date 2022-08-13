@@ -10,7 +10,7 @@ export const NotFound = () => {
     const navigate = useNavigate()
 
     const handleNavigate = () => {
-        navigate('/')
+        navigate(-1)
     }
 
     return (
@@ -19,7 +19,7 @@ export const NotFound = () => {
             <TitlePage>Tá perdido amigão? Ajudamos você encontrar o caminho de volta! 😉</TitlePage>
 
             <ContainerButton>
-                <Button title="Voltar ao início" icon={backIcon} onClick={handleNavigate} />
+                <Button title="Voltar a página anterior" icon={backIcon} onClick={handleNavigate} />
             </ContainerButton>
 
         </Container>

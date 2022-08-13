@@ -2,28 +2,32 @@ import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 
 
 import { Admin, Beneficiary, NotAllowed, NotFound, SignIn } from "pages";
-import { PrivateRoute } from "components/PrivateRoute";
+import { PrivateRoutes } from "components";
 
 export const RoutesApp = (): JSX.Element => {
 
     return (
         <BrowserRouter>
             <Routes>
-                <Route path="/" element={<Navigate to="/login" />} />
-                <Route path="/login" element={<SignIn />} />
+                <Route path="/" element={
+                    <SignIn />
+                } />
+                <Route path="/login" element={
+                    <SignIn />
+                } />
 
 
                 <Route path="/admin"
                     element={
-                        <PrivateRoute>
+                        <PrivateRoutes>
                             <Admin />
-                        </PrivateRoute>}
+                        </PrivateRoutes>}
                 />
 
                 <Route path="/beneficiary" element={
-                    <PrivateRoute>
+                    <PrivateRoutes>
                         <Beneficiary />
-                    </PrivateRoute>}
+                    </PrivateRoutes>}
                 />
                 <Route path="*" element={<NotFound />} />
                 <Route path="/forbidden" element={<NotAllowed />} />
