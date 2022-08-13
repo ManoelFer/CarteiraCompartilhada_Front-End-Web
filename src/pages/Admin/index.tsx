@@ -1,11 +1,24 @@
 import { addBeneficiary, addCoin, adminAnimation, modifyAllowance, pauseTransfers } from "assets"
 
 import { GlassCard, Header, Lottie } from "components"
+import { Web3Context } from "context"
+import { useContext, useEffect } from "react"
+import { useNavigate } from "react-router-dom"
 
 import { Container, TitleCard, ContainerActions, ContentActions, CardActions, ImageActions, TitleActions } from "./styles"
 
 
 export const Admin = () => {
+    const navigate = useNavigate()
+    const { isAdmin, disconnectWallet } = useContext(Web3Context)
+
+    useEffect(() => {
+        if (!isAdmin) {
+            disconnectWallet()
+            navigate('/login')
+        }
+    }, [isAdmin])
+
     return (
         <Container>
             <Header />

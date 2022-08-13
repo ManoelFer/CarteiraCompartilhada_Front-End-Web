@@ -8,7 +8,7 @@ export const ButtonStyled = styled.button<IButtonStyledProps>`
     border-radius: 20px;
     border: none;
     background-image:${({ theme }) => theme.colors.colorGradientButton} ;
-    color:${({ theme }) => theme.colors.lettersWithe};
+    color:${({ theme }) => theme.colors.lettersWhite};
 
     font-weight: 400;
     font-size:${({ theme }) => theme.fontSizes.small};

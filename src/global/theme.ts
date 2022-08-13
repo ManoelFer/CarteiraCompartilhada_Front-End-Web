@@ -1,7 +1,7 @@
 
 export const theme = {
     colors: {
-        lettersWithe: "#FFFFFF",
+        lettersWhite: "#FFFFFF",
         colorGradientButton: `linear-gradient(340deg, #d975bb, #e5e5e5)`,
         backgroundCardActions: '#261863',
         backgroundCardActionsHover: '#2f1e7c'

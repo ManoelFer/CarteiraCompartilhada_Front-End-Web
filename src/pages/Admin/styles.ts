@@ -13,12 +13,13 @@ export const Container = styled.div`
 
 
     background-image: url(${backgroundAdmin});
-    background-repeat: round;
+    background-position: center;
+    background-repeat: no-repeat;
     background-size: cover;
 `
 
 export const TitleCard = styled.h1`
-    color: ${({ theme }) => theme.colors.lettersWithe};
+    color: ${({ theme }) => theme.colors.lettersWhite};
     font-weight: 700;
     line-height: 40px;
     letter-spacing: 3%;
@@ -39,7 +40,7 @@ export const ContentActions = styled.div`
 `
 export const CardActions = styled.div`
     background-color: ${({ theme }) => theme.colors.backgroundCardActions};
-    color: ${({ theme }) => theme.colors.lettersWithe};
+    color: ${({ theme }) => theme.colors.lettersWhite};
     display: flex; 
     align-items: center;
     flex-direction: column; 
