@@ -8,7 +8,7 @@ export const theme = {
     },
     fonts: ["Lato"],
     fontSizes: {
-        small: "1em",
+        small: "1.3em",
         medium: "2em",
         large: "3em"
     }

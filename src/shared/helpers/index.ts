@@ -1,0 +1,1 @@
+export { handleErrosInContract } from './hadleErrorInContract'

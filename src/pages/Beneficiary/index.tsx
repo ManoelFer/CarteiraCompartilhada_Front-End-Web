@@ -1,21 +1,33 @@
 import { useContext, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 
-import Swal from 'sweetalert2'
 import Web3 from 'web3'
+
+import SharedWallet from "contracts/SharedWalletContract.json"
 
 import { cryptoWalletAnimation } from 'assets'
 
-import { Button, GlassCard, Header, Lottie } from 'components'
+import { Button, GlassCard, Header, Lottie, SwalAlertComponent } from 'components'
 
 import { Web3Context } from 'context'
 
 import { ContainerButton, TextCard, TitleCard, Container } from './styles'
+import { handleErrosInContract } from 'shared/helpers'
 
 
 export const Beneficiary = () => {
     const navigate = useNavigate()
-    const { verifyIfIsBeneficiary, getTotalBalance, disconnectWallet, isLogged, SharedWalletContractDeployed, setIsLoading, currentAddress, currentBalanceOf } = useContext(Web3Context)
+    const {
+        contractAddress,
+        verifyIfIsBeneficiary,
+        getTotalBalance,
+        disconnectWallet,
+        isLogged,
+        SharedWalletContractDeployed,
+        setIsLoading,
+        currentAddress,
+        currentBalanceOf
+    } = useContext(Web3Context)
 
     useEffect(() => {
         async function verifyAccess() {
@@ -27,7 +39,8 @@ export const Beneficiary = () => {
         }
 
         if (isLogged) verifyAccess()
-    }, [isLogged])
+    },
+        [isLogged])
 
     const handleWithdrawAllowance = async () => {
         setIsLoading(true)
@@ -38,69 +51,15 @@ export const Beneficiary = () => {
             await getTotalBalance()
 
             setIsLoading(false)
-            Swal.fire({
-                icon: 'success',
-                title: 'Os Family Coins referentes a sua mesada, foram movidos para sua carteira!',
-                showConfirmButton: false,
-                timer: 3500,
-                heightAuto: false,
-                showClass: {
-                    popup: 'animate__animated animate__fadeInDown'
-                },
-                hideClass: {
-                    popup: 'animate__animated animate__fadeOutUp'
-                }
-            })
+
+            SwalAlertComponent({ icon: 'success', title: 'Os Family Coins referentes a sua mesada, foram movidos para sua carteira!' })
 
         } catch (error) {
             setIsLoading(false)
 
             //@ts-ignore
-            const newErrorMessage = JSON.parse(error.message.replace('[ethjs-query] while formatting outputs from RPC', '').replace("'{", "{").replace("}'", "}").trim())
-
-            if (newErrorMessage.value.data.message === "VM Exception while processing transaction: revert You can only withdraw your allowance once every 30 days") {
-                return Swal.fire({
-                    icon: 'error',
-                    title: 'Você só pode retirar Family Coins novamente daqui 30 dias!',
-                    showConfirmButton: false,
-                    timer: 4500,
-                    heightAuto: false,
-                    showClass: {
-                        popup: 'animate__animated animate__fadeInDown'
-                    },
-                    hideClass: {
-                        popup: 'animate__animated animate__fadeOutUp'
-                    }
-                })
-            } else if (newErrorMessage.value.data.message === "VM Exception while processing transaction: revert ERC20Pausable: token transfer while paused") {
-                return Swal.fire({
-                    icon: 'error',
-                    title: 'Todas as transferências foram pausadas pelo administrador!',
-                    showConfirmButton: false,
-                    timer: 4500,
-                    heightAuto: false,
-                    showClass: {
-                        popup: 'animate__animated animate__fadeInDown'
-                    },
-                    hideClass: {
-                        popup: 'animate__animated animate__fadeOutUp'
-                    }
-                })
-            }
-
-            Swal.fire({
-                icon: 'error',
-                title: 'Falha na retirada dos Family Coins!',
-                showConfirmButton: false,
-                timer: 4500,
-                heightAuto: false,
-                showClass: {
-                    popup: 'animate__animated animate__fadeInDown'
-                },
-                hideClass: {
-                    popup: 'animate__animated animate__fadeOutUp'
-                }
-            })
+            const errorMessageToJson = JSON.parse(error.message.replace('[ethjs-query] while formatting outputs from RPC', '').replace("'{", "{").replace("}'", "}").trim())
+            handleErrosInContract(errorMessageToJson.value.data.message)
         }
     }
 
@@ -115,7 +74,11 @@ export const Beneficiary = () => {
                     height={200}
                 />
                 <TitleCard>Seu saldo atual é de: {Web3.utils.fromWei(currentBalanceOf.toString(), "ether")} Family Coins</TitleCard>
-                <TextCard>Todo mês você está permitido a retirar x Family Coins, através do botão abaixo!</TextCard>
+
+                <TextCard>
+                    Todo mês você está permitido a retirar Family Coins, através do botão abaixo!
+                    <br /> Para visualização dos tokens em sua carteira use a seguinte chave: <b>{contractAddress}</b>
+                </TextCard>
 
                 <ContainerButton>
                     <Button title='Retirar mesada' onClick={handleWithdrawAllowance} />

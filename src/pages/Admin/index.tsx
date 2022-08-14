@@ -110,39 +110,43 @@ export const Admin = () => {
             input: 'text',
             inputLabel: 'Endereço do beneficiário',
             inputPlaceholder: '0x0000000000000000000000000000000000000000',
-            heightAuto: false
+            heightAuto: false,
+            showCancelButton: true,
+            cancelButtonText: 'Cancelar',
         })
 
-        const isBeneficiary = await verifyIfIsBeneficiary(beneficiary)
+        if (beneficiary) {
+            const isBeneficiary = await verifyIfIsBeneficiary(beneficiary)
 
-        if (isBeneficiary) {
-            Swal.fire({
-                icon: 'success',
-                title: 'Este endereço é de um beneficiário',
-                showConfirmButton: false,
-                timer: 3500,
-                heightAuto: false,
-                showClass: {
-                    popup: 'animate__animated animate__fadeInDown'
-                },
-                hideClass: {
-                    popup: 'animate__animated animate__fadeOutUp'
-                }
-            })
-        } else {
-            Swal.fire({
-                icon: 'error',
-                title: 'Este endereço não é de um beneficiário',
-                showConfirmButton: false,
-                timer: 3500,
-                heightAuto: false,
-                showClass: {
-                    popup: 'animate__animated animate__fadeInDown'
-                },
-                hideClass: {
-                    popup: 'animate__animated animate__fadeOutUp'
-                }
-            })
+            if (isBeneficiary) {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Este endereço é de um beneficiário',
+                    showConfirmButton: false,
+                    timer: 3500,
+                    heightAuto: false,
+                    showClass: {
+                        popup: 'animate__animated animate__fadeInDown'
+                    },
+                    hideClass: {
+                        popup: 'animate__animated animate__fadeOutUp'
+                    }
+                })
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Este endereço não é de um beneficiário',
+                    showConfirmButton: false,
+                    timer: 3500,
+                    heightAuto: false,
+                    showClass: {
+                        popup: 'animate__animated animate__fadeInDown'
+                    },
+                    hideClass: {
+                        popup: 'animate__animated animate__fadeOutUp'
+                    }
+                })
+            }
         }
     }
 
@@ -195,51 +199,55 @@ export const Admin = () => {
         }
     }
 
-    const handeAddFamilyCoins = async () => {
+    const handleAddFamilyCoins = async () => {
         const { value: amount } = await Swal.fire({
             title: 'Adicione a quantidade em wei de Family Coins',
             input: 'text',
             inputLabel: 'Valor de Family Coins em Wei',
             inputPlaceholder: '1000000000000000000',
-            heightAuto: false
+            heightAuto: false,
+            showCancelButton: true,
+            cancelButtonText: 'Cancelar',
         })
 
-        setIsLoading(true)
+        if (amount) {
+            setIsLoading(true)
 
-        try {
-            await SharedWalletContractDeployed.methods.addTokens(currentAddress, new BigNumber(amount)).send()
+            try {
+                await SharedWalletContractDeployed.methods.addTokens(currentAddress, new BigNumber(amount)).send()
 
-            await getTotalSupply()
+                await getTotalSupply()
 
-            setIsLoading(false)
-            Swal.fire({
-                icon: 'success',
-                title: 'Family Coins Adicionados com sucesso!',
-                showConfirmButton: false,
-                timer: 3500,
-                heightAuto: false,
-                showClass: {
-                    popup: 'animate__animated animate__fadeInDown'
-                },
-                hideClass: {
-                    popup: 'animate__animated animate__fadeOutUp'
-                }
-            })
-        } catch (error) {
-            setIsLoading(false)
-            Swal.fire({
-                icon: 'error',
-                title: 'Falha ao adicionar family coins',
-                showConfirmButton: false,
-                timer: 3500,
-                heightAuto: false,
-                showClass: {
-                    popup: 'animate__animated animate__fadeInDown'
-                },
-                hideClass: {
-                    popup: 'animate__animated animate__fadeOutUp'
-                }
-            })
+                setIsLoading(false)
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Family Coins Adicionados com sucesso!',
+                    showConfirmButton: false,
+                    timer: 3500,
+                    heightAuto: false,
+                    showClass: {
+                        popup: 'animate__animated animate__fadeInDown'
+                    },
+                    hideClass: {
+                        popup: 'animate__animated animate__fadeOutUp'
+                    }
+                })
+            } catch (error) {
+                setIsLoading(false)
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Falha ao adicionar family coins',
+                    showConfirmButton: false,
+                    timer: 3500,
+                    heightAuto: false,
+                    showClass: {
+                        popup: 'animate__animated animate__fadeInDown'
+                    },
+                    hideClass: {
+                        popup: 'animate__animated animate__fadeOutUp'
+                    }
+                })
+            }
         }
     }
 
@@ -349,12 +357,12 @@ export const Admin = () => {
                         <CardActions onClick={handleMaxFamilyCoins}>
                             <ImageActions src={maxAllowedIcon} />
 
-                            <TitleActions>Máximo de FLs</TitleActions>
+                            <TitleActions>Máximo de Family Coins</TitleActions>
                         </CardActions>
-                        <CardActions onClick={handeAddFamilyCoins}>
+                        <CardActions onClick={handleAddFamilyCoins}>
                             <ImageActions src={addCoin} />
 
-                            <TitleActions>Adicionar + Family Coins</TitleActions>
+                            <TitleActions>Adicionar Family Coins</TitleActions>
                         </CardActions>
                         <CardActions onClick={isPaused ? handleUnpause : handlePause}>
                             <ImageActions src={isPaused ? unpauseIcon : pauseTransfers} />

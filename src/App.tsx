@@ -6,12 +6,12 @@ import { RoutesApp } from 'routes';
 
 import { Web3Context } from 'context';
 
+import { Loading } from 'components/Loading';
+
 import './App.css';
 import 'sweetalert2/src/sweetalert2.scss'
 import 'react-toastify/dist/ReactToastify.css';
-import { Loading } from 'components/Loading';
-
-
+import 'animate.css';
 
 
 function App() {

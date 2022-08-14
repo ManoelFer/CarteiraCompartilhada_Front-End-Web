@@ -22,6 +22,8 @@ export interface IWeb3ContextProps {
 
     currentBalanceOf: number;
     getTotalBalance: () => void;
+
+    contractAddress: string;
 }
 
 export interface IWeb3ContextProviderProps {

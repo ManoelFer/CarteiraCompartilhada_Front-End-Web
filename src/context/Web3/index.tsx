@@ -27,6 +27,7 @@ export function Web3ContextProvider({
     const [currentTotalSupply, setCurrentTotalSupply] = useState(0)
     const [currentBalanceOf, setCurrentBalanceOf] = useState(0)
     const [isPaused, setIsPaused] = useState(false)
+    const [contractAddress, setContractAddress] = useState("")
 
     useEffect(() => {
         const newWeb3Modal = new Web3Modal({
@@ -138,9 +139,13 @@ export function Web3ContextProvider({
             // Get the contract instance.
             const networkId = await web3.eth.net.getId();
 
+            const contractAddressValue = SharedWallet.networks[networkId].address
+
+            setContractAddress(contractAddressValue)
+
             setSharedWallet(new web3.eth.Contract(
                 SharedWallet.abi,
-                SharedWallet.networks[networkId] && SharedWallet.networks[networkId].address,
+                SharedWallet.networks[networkId] && contractAddressValue,
                 {
                     from: web3.eth.currentProvider.selectedAddress
                 }
@@ -227,7 +232,9 @@ export function Web3ContextProvider({
                 getTotalSupply,
 
                 currentBalanceOf,
-                getTotalBalance
+                getTotalBalance,
+
+                contractAddress
             }}
         >
             {children}
