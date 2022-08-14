@@ -24,6 +24,9 @@ export function Web3ContextProvider({
     const [isLoading, setIsLoading] = useState(false)
     const [isLogged, setIsLogged] = useState(false)
     const [currentAddress, setCurrentAddress] = useState()
+    const [currentTotalSupply, setCurrentTotalSupply] = useState(0)
+    const [currentBalanceOf, setCurrentBalanceOf] = useState(0)
+    const [isPaused, setIsPaused] = useState(false)
 
     useEffect(() => {
         const newWeb3Modal = new Web3Modal({
@@ -47,6 +50,8 @@ export function Web3ContextProvider({
         async function initialMethods() {
             await verifyIfIsAdmin()
             await verifyIfIsBeneficiary()
+            await getTotalSupply()
+            await getTotalBalance()
         }
         if (SharedWalletContractDeployed && currentAddress) initialMethods()
 
@@ -62,6 +67,16 @@ export function Web3ContextProvider({
             } else {
                 return false
             }
+        } catch (error) {
+            console.log('Error in verify if user is admin => ', error)
+        }
+    }
+
+    const verifyIfIsPaused = async (): boolean => {
+        try {
+            const paused = await SharedWalletContractDeployed.methods.paused().call()
+
+            setIsPaused(paused)
         } catch (error) {
             console.log('Error in verify if user is admin => ', error)
         }
@@ -163,6 +178,30 @@ export function Web3ContextProvider({
         });
     }
 
+    async function getTotalSupply() {
+        try {
+            const totalSupply = await SharedWalletContractDeployed.methods.totalSupply().call()
+
+            setCurrentTotalSupply(totalSupply)
+        } catch (error) {
+            console.log('Error in get total supply', error)
+        }
+    }
+
+    async function getTotalBalance() {
+        try {
+            const balanceOf = await SharedWalletContractDeployed.methods.balanceOf(currentAddress).call()
+
+            setCurrentBalanceOf(balanceOf)
+        } catch (error) {
+            console.log('Error in get balance of to current address', error)
+        }
+    }
+
+    async function addMoreFLs() {
+        return SharedWalletContractDeployed.methods.addTokens(currentAddress, new BigNumber(amount)).send()
+    }
+
     return (
         <Web3Context.Provider
             value={{
@@ -177,8 +216,18 @@ export function Web3ContextProvider({
                 currentAddress,
                 setIsLoading,
 
+                addMoreFLs,
+
                 verifyIfIsAdmin,
-                verifyIfIsBeneficiary
+                verifyIfIsBeneficiary,
+                verifyIfIsPaused,
+                isPaused,
+
+                currentTotalSupply,
+                getTotalSupply,
+
+                currentBalanceOf,
+                getTotalBalance
             }}
         >
             {children}

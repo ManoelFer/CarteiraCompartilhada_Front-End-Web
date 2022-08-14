@@ -1,19 +1,39 @@
-import { useContext } from "react"
+import { useContext, useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
+
 import { toast } from "react-toastify"
+import Web3 from "web3"
 
 import { disconnectIcon } from "assets"
 
 import { Button } from "components"
 
-
-import { Container, Content } from "./styles"
+import { Container, Content, CurrentBalance } from "./styles"
 
 import { Web3Context } from "context"
 
+
 export const Header = () => {
+    const [whoIsLogged, setWhoIsLogged] = useState("")
     const navigate = useNavigate()
-    const { disconnectWallet } = useContext(Web3Context)
+    const { disconnectWallet, currentTotalSupply, verifyIfIsAdmin } = useContext(Web3Context)
+
+    useEffect(() => {
+        async function loadDataBalances() {
+            const isAdmin = await verifyIfIsAdmin()
+
+            if (isAdmin) {
+                setWhoIsLogged("admin")
+            }
+            else {
+                setWhoIsLogged("isBeneficiary")
+            }
+
+        }
+
+        loadDataBalances()
+    }, [])
+
 
     const handleNavigate = async () => {
         try {
@@ -35,6 +55,14 @@ export const Header = () => {
     return (
         <Container>
             <Content>
+                {whoIsLogged === "admin"
+                    ?
+                    <CurrentBalance>
+                        Saldo atual é de: {Web3.utils.fromWei(currentTotalSupply.toString(), "ether")} FLs🪙
+                    </CurrentBalance>
+                    :
+                    <div></div>
+                }
                 <Button title="Desconectar Carteira" icon={disconnectIcon} onClick={handleNavigate} />
             </Content>
         </Container>

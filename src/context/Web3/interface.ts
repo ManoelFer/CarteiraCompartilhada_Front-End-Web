@@ -14,6 +14,14 @@ export interface IWeb3ContextProps {
 
     verifyIfIsAdmin: (beneficiary?: string) => boolean;
     verifyIfIsBeneficiary: (beneficiary?: string) => boolean;
+    verifyIfIsPaused: () => void;
+    isPaused: boolean;
+
+    currentTotalSupply: number;
+    getTotalSupply: () => void;
+
+    currentBalanceOf: number;
+    getTotalBalance: () => void;
 }
 
 export interface IWeb3ContextProviderProps {

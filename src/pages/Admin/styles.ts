@@ -16,6 +16,15 @@ export const Container = styled.div`
     background-position: center;
     background-repeat: no-repeat;
     background-size: cover;
+
+    
+
+    @media (max-width: 450px){
+        h1, h3 {
+            font-size: 1em;
+        }
+    }
+    
 `
 
 export const TitleCard = styled.h1`
@@ -33,12 +42,41 @@ export const ContentActions = styled.div`
     width: 100%;
     justify-content: space-around;
     display: flex;
+    margin-top: 20px;
 
-    @media (max-width: 1024px) {
+    ::-webkit-scrollbar {
+        width: 20px;
+    }
+
+    ::-webkit-scrollbar-track {
+        box-shadow: inset 0 0 5px grey; 
+        border-radius: 10px;
+    }
+
+    ::-webkit-scrollbar-thumb {
+        background: ${({ theme }) => theme.colors.backgroundCardActions}; 
+        border-radius: 10px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+        background: ${({ theme }) => theme.colors.backgroundCardActionsHover}; 
+    }
+
+    @media (max-width: 1900px) {
         flex-direction: column;
+        justify-content: start;
+        align-items: center;
+        overflow-y: scroll;
+        overflow-x: hidden;
+        height: 600px;
+    }
+
+    @media (max-width: 450px){
+        height: 400px;
     }
 `
 export const CardActions = styled.div`
+    min-width: 250px;
     background-color: ${({ theme }) => theme.colors.backgroundCardActions};
     color: ${({ theme }) => theme.colors.lettersWhite};
     display: flex; 
@@ -57,8 +95,16 @@ export const CardActions = styled.div`
         background-color: ${({ theme }) => theme.colors.backgroundCardActionsHover};
     }
 
-    @media (max-width: 1024px) {
+    @media (max-width: 1900px) {
         margin-bottom: 20px;
+        :hover{
+            transform: scale(1);
+        }
+    }
+
+    @media (max-width: 450px){
+        width: 170px;
+        min-width: 0px;
     }
 `
 

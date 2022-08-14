@@ -12,7 +12,8 @@ export const Container = styled.div`
 
 
     background-image: url(${backgroundBeneficiary});
-    background-repeat: round;
+    background-position: center;
+    background-repeat: no-repeat;
     background-size: cover;
 `
 export const TitleCard = styled.h1`

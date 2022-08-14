@@ -2,7 +2,6 @@ import styled from "styled-components";
 
 export const Container = styled.header`
     display: flex;
-    justify-content: flex-end;
 
     position: absolute;
     background-color: transparent;
@@ -12,5 +11,14 @@ export const Container = styled.header`
 `
 
 export const Content = styled.div`
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
     padding: 40px;
+
+    @media (max-width: 650px){
+        flex-direction: column;
+    }
 `
+
+export const CurrentBalance = styled.h2``
