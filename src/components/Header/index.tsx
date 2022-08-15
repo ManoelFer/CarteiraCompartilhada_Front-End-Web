@@ -28,7 +28,6 @@ export const Header = () => {
             else {
                 setWhoIsLogged("isBeneficiary")
             }
-
         }
 
         loadDataBalances()

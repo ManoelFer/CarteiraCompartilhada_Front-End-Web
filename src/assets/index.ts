@@ -19,7 +19,6 @@ import backIcon from './seta-esquerda.png'
 
 import addCoin from './income.png'
 import pauseTransfers from './stop.png'
-import modifyAllowance from './edit.png'
 import addBeneficiary from './add-group.png'
 import isBeneficiaryIcon from './beneficiary.png'
 import unpauseIcon from './broken-link.png'
@@ -36,7 +35,6 @@ export {
 
     addCoin,
     pauseTransfers,
-    modifyAllowance,
     addBeneficiary,
     isBeneficiaryIcon,
     unpauseIcon,

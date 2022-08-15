@@ -3,14 +3,16 @@ import { useNavigate } from "react-router-dom"
 
 import BigNumber from 'bignumber.js'
 import Swal from "sweetalert2"
+import Web3 from "web3"
 
-import { addBeneficiary, addCoin, adminAnimation, isBeneficiaryIcon, maxAllowedIcon, modifyAllowance, pauseTransfers, unpauseIcon } from "assets"
+import { addBeneficiary, addCoin, adminAnimation, isBeneficiaryIcon, maxAllowedIcon, pauseTransfers, unpauseIcon } from "assets"
 
-import { GlassCard, Header, Lottie } from "components"
+import { GlassCard, Header, Lottie, SwalAlertComponent } from "components"
 
 import { Web3Context } from "context"
 
 import { Container, TitleCard, ContainerActions, ContentActions, CardActions, ImageActions, TitleActions } from "./styles"
+
 
 export const Admin = () => {
     const navigate = useNavigate()
@@ -60,7 +62,26 @@ export const Admin = () => {
         })
 
         //@ts-ignore
-        const { beneficiary, isActive, balance } = formValues
+        let { beneficiary, isActive, balance } = formValues
+
+        //convert to boolean
+        isActive = isActive === "true" ? true : false
+
+        if (!beneficiary || !isActive || !balance) {
+            return SwalAlertComponent({ icon: 'error', title: 'preencha todo formulário' })
+        }
+
+        if (!Web3.utils.isAddress(beneficiary)) {
+            return SwalAlertComponent({ icon: 'error', title: 'O endereço da carteira do beneficiário deve ser válido' })
+        }
+
+        if (typeof isActive !== "boolean") {
+            return SwalAlertComponent({ icon: 'error', title: 'O campo de ativação deve receber o valor true ou false' })
+        }
+
+        if (isNaN(balance)) {
+            return SwalAlertComponent({ icon: 'error', title: 'O campo do valor a ser liberado deve ser um valor numérico' })
+        }
 
         //@ts-ignore
         if (formValues) {
@@ -116,36 +137,16 @@ export const Admin = () => {
         })
 
         if (beneficiary) {
+            if (!Web3.utils.isAddress(beneficiary)) {
+                return SwalAlertComponent({ icon: 'error', title: 'O endereço da carteira do beneficiário deve ser válido' })
+            }
+
             const isBeneficiary = await verifyIfIsBeneficiary(beneficiary)
 
             if (isBeneficiary) {
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Este endereço é de um beneficiário',
-                    showConfirmButton: false,
-                    timer: 3500,
-                    heightAuto: false,
-                    showClass: {
-                        popup: 'animate__animated animate__fadeInDown'
-                    },
-                    hideClass: {
-                        popup: 'animate__animated animate__fadeOutUp'
-                    }
-                })
+                return SwalAlertComponent({ icon: 'success', title: 'Este endereço é de um beneficiário' })
             } else {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Este endereço não é de um beneficiário',
-                    showConfirmButton: false,
-                    timer: 3500,
-                    heightAuto: false,
-                    showClass: {
-                        popup: 'animate__animated animate__fadeInDown'
-                    },
-                    hideClass: {
-                        popup: 'animate__animated animate__fadeOutUp'
-                    }
-                })
+                return SwalAlertComponent({ icon: 'error', title: 'Este endereço não é de um beneficiário' })
             }
         }
     }
@@ -161,40 +162,23 @@ export const Admin = () => {
         })
 
         if (valueInputMaxTokenAllowed) {
+            if (isNaN(valueInputMaxTokenAllowed)) {
+                return SwalAlertComponent({ icon: 'error', title: 'O input deve conter um valor numérico' })
+            }
+
             setIsLoading(true)
 
             try {
-                setIsLoading(false)
                 //@ts-ignore
                 await SharedWalletContractDeployed.methods.setMaxTokensAllowed(new BigNumber(valueInputMaxTokenAllowed)).send()
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Número máximo de FLs modificado com sucesso!',
-                    showConfirmButton: false,
-                    timer: 3500,
-                    heightAuto: false,
-                    showClass: {
-                        popup: 'animate__animated animate__fadeInDown'
-                    },
-                    hideClass: {
-                        popup: 'animate__animated animate__fadeOutUp'
-                    }
-                })
+
+                setIsLoading(false)
+
+                return SwalAlertComponent({ icon: 'success', title: 'Número máximo de FLs modificado com sucesso!' })
             } catch (error) {
                 setIsLoading(false)
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Falha ao modificar número máximo de FLs! ',
-                    showConfirmButton: false,
-                    timer: 3500,
-                    heightAuto: false,
-                    showClass: {
-                        popup: 'animate__animated animate__fadeInDown'
-                    },
-                    hideClass: {
-                        popup: 'animate__animated animate__fadeOutUp'
-                    }
-                })
+
+                return SwalAlertComponent({ icon: 'error', title: 'Falha ao modificar número máximo de FLs!' })
             }
         }
     }
@@ -211,6 +195,10 @@ export const Admin = () => {
         })
 
         if (amount) {
+            if (isNaN(amount)) {
+                return SwalAlertComponent({ icon: 'error', title: 'O input deve conter um valor numérico' })
+            }
+
             setIsLoading(true)
 
             try {
@@ -219,34 +207,11 @@ export const Admin = () => {
                 await getTotalSupply()
 
                 setIsLoading(false)
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Family Coins Adicionados com sucesso!',
-                    showConfirmButton: false,
-                    timer: 3500,
-                    heightAuto: false,
-                    showClass: {
-                        popup: 'animate__animated animate__fadeInDown'
-                    },
-                    hideClass: {
-                        popup: 'animate__animated animate__fadeOutUp'
-                    }
-                })
+
+                return SwalAlertComponent({ icon: 'success', title: 'Family Coins Adicionados com sucesso!' })
             } catch (error) {
                 setIsLoading(false)
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Falha ao adicionar family coins',
-                    showConfirmButton: false,
-                    timer: 3500,
-                    heightAuto: false,
-                    showClass: {
-                        popup: 'animate__animated animate__fadeInDown'
-                    },
-                    hideClass: {
-                        popup: 'animate__animated animate__fadeOutUp'
-                    }
-                })
+                return SwalAlertComponent({ icon: 'success', title: 'Falha ao adicionar family coins!' })
             }
         }
     }
@@ -260,34 +225,10 @@ export const Admin = () => {
             await verifyIfIsPaused()
 
             setIsLoading(false)
-            Swal.fire({
-                icon: 'success',
-                title: 'Transações pausadas!',
-                showConfirmButton: false,
-                timer: 3500,
-                heightAuto: false,
-                showClass: {
-                    popup: 'animate__animated animate__fadeInDown'
-                },
-                hideClass: {
-                    popup: 'animate__animated animate__fadeOutUp'
-                }
-            })
+            return SwalAlertComponent({ icon: 'success', title: 'Transações pausadas!' })
         } catch (error) {
             setIsLoading(false)
-            Swal.fire({
-                icon: 'error',
-                title: 'Falha ao pausar as transações! ',
-                showConfirmButton: false,
-                timer: 3500,
-                heightAuto: false,
-                showClass: {
-                    popup: 'animate__animated animate__fadeInDown'
-                },
-                hideClass: {
-                    popup: 'animate__animated animate__fadeOutUp'
-                }
-            })
+            return SwalAlertComponent({ icon: 'success', title: 'Falha ao pausar as transações!' })
         }
     }
 
@@ -300,34 +241,11 @@ export const Admin = () => {
             await verifyIfIsPaused()
 
             setIsLoading(false)
-            Swal.fire({
-                icon: 'success',
-                title: 'Transações despausadas!',
-                showConfirmButton: false,
-                timer: 3500,
-                heightAuto: false,
-                showClass: {
-                    popup: 'animate__animated animate__fadeInDown'
-                },
-                hideClass: {
-                    popup: 'animate__animated animate__fadeOutUp'
-                }
-            })
+
+            return SwalAlertComponent({ icon: 'success', title: 'Transações despausadas!' })
         } catch (error) {
             setIsLoading(false)
-            Swal.fire({
-                icon: 'error',
-                title: 'Falha ao despausar transações!',
-                showConfirmButton: false,
-                timer: 3500,
-                heightAuto: false,
-                showClass: {
-                    popup: 'animate__animated animate__fadeInDown'
-                },
-                hideClass: {
-                    popup: 'animate__animated animate__fadeOutUp'
-                }
-            })
+            return SwalAlertComponent({ icon: 'success', title: 'Falha ao despausar as transações!' })
         }
     }
 
