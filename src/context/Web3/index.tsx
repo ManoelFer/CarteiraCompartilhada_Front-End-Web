@@ -24,6 +24,7 @@ export function Web3ContextProvider({
     const [isLoading, setIsLoading] = useState(false)
     const [isLogged, setIsLogged] = useState(false)
     const [currentAddress, setCurrentAddress] = useState()
+    const [tryConnectAgain, setTryConnectAgain] = useState(false)
     const [currentTotalSupply, setCurrentTotalSupply] = useState(0)
     const [currentBalanceOf, setCurrentBalanceOf] = useState(0)
     const [isPaused, setIsPaused] = useState(false)
@@ -39,7 +40,6 @@ export function Web3ContextProvider({
     }, [])
 
     useEffect(() => {
-
         // connect automatically and without a popup if user is already connected
         if (web3Modal && web3Modal.cachedProvider) {
             connectWallet()
@@ -73,27 +73,29 @@ export function Web3ContextProvider({
         }
     }
 
+    const verifyIfIsBeneficiary = async (beneficiary?: string): boolean => {
+        if (beneficiary || currentAddress) {
+            try {
+                const beneficiaryResult = await SharedWalletContractDeployed.methods.beneficiaries(beneficiary || currentAddress).call()
+
+                if (beneficiaryResult.isAllowed) {
+                    return true
+                } else {
+                    return false
+                }
+            } catch (error) {
+                console.log('Error in verify if user is beneficiary => ', error)
+            }
+        }
+    }
+
     const verifyIfIsPaused = async (): boolean => {
         try {
             const paused = await SharedWalletContractDeployed.methods.paused().call()
 
             setIsPaused(paused)
         } catch (error) {
-            console.log('Error in verify if user is admin => ', error)
-        }
-    }
-
-    const verifyIfIsBeneficiary = async (beneficiary?: string): boolean => {
-        try {
-            const beneficiaryResult = await SharedWalletContractDeployed.methods.beneficiaries(beneficiary || currentAddress).call()
-
-            if (beneficiaryResult.isAllowed) {
-                return true
-            } else {
-                return false
-            }
-        } catch (error) {
-            console.log('Error in verify if user is beneficiary => ', error)
+            console.log('Error in verify if contracts to be paused => ', error)
         }
     }
 
@@ -101,6 +103,9 @@ export function Web3ContextProvider({
         const address = await web3InstanceParam.eth.currentProvider.selectedAddress
 
         setCurrentAddress(address)
+
+        setTryConnectAgain(!tryConnectAgain)
+
         if (SharedWalletContractDeployed) {
             verifyIfIsAdmin()
             verifyIfIsBeneficiary()
@@ -110,6 +115,7 @@ export function Web3ContextProvider({
     const disconnectWallet = async () => {
         try {
             await web3Modal.clearCachedProvider()
+            setCurrentAddress('')
             setIsLogged(false)
         } catch (error) {
             throw new Error(error)
@@ -122,16 +128,11 @@ export function Web3ContextProvider({
         setIsLoading(true)
 
         try {
-
             provider = await web3Modal.connect();
 
             //Set web3 instance and address connected.
             const web3 = new Web3(provider)
             setWeb3Instance(web3)
-
-            addListeners(provider, web3);
-
-            await changeCurrentAddress(web3)
 
             // Use web3 to get the user's accounts.
             setAccounts(await web3.eth.getAccounts())
@@ -150,6 +151,10 @@ export function Web3ContextProvider({
                     from: web3.eth.currentProvider.selectedAddress
                 }
             ))
+
+            await changeCurrentAddress(web3)
+
+            addListeners(provider, web3);
 
             setIsLoading(false)
             setIsLogged(true)
@@ -234,7 +239,9 @@ export function Web3ContextProvider({
                 currentBalanceOf,
                 getTotalBalance,
 
-                contractAddress
+                contractAddress,
+
+                tryConnectAgain
             }}
         >
             {children}

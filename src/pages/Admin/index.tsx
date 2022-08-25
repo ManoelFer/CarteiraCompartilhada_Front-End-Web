@@ -27,7 +27,8 @@ export const Admin = () => {
         verifyIfIsPaused,
         disconnectWallet,
         SharedWalletContractDeployed,
-        setIsLoading
+        setIsLoading,
+        tryConnectAgain
     } = useContext(Web3Context)
 
     useEffect(() => {
@@ -42,7 +43,7 @@ export const Admin = () => {
         }
 
         if (isLogged) initFunctions()
-    }, [isLogged, isPaused])
+    }, [isLogged, isPaused, tryConnectAgain])
 
     const handleBeneficiary = async () => {
         const { value: formValues } = await Swal.fire({

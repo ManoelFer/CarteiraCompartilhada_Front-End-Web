@@ -26,7 +26,8 @@ export const Beneficiary = () => {
         SharedWalletContractDeployed,
         setIsLoading,
         currentAddress,
-        currentBalanceOf
+        currentBalanceOf,
+        tryConnectAgain
     } = useContext(Web3Context)
 
     useEffect(() => {
@@ -39,8 +40,7 @@ export const Beneficiary = () => {
         }
 
         if (isLogged) verifyAccess()
-    },
-        [isLogged])
+    }, [isLogged, tryConnectAgain])
 
     const handleWithdrawAllowance = async () => {
         setIsLoading(true)

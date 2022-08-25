@@ -24,6 +24,8 @@ export interface IWeb3ContextProps {
     getTotalBalance: () => void;
 
     contractAddress: string;
+
+    tryConnectAgain: boolean;
 }
 
 export interface IWeb3ContextProviderProps {

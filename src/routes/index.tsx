@@ -10,7 +10,7 @@ export const RoutesApp = (): JSX.Element => {
         <BrowserRouter>
             <Routes>
                 <Route path="/" element={
-                    <SignIn />
+                    <Navigate to="/login" />
                 } />
                 <Route path="/login" element={
                     <SignIn />
@@ -29,7 +29,7 @@ export const RoutesApp = (): JSX.Element => {
                         <Beneficiary />
                     </PrivateRoutes>}
                 />
-                <Route path="*" element={<NotFound />} />
+                <Route path="*" element={<Navigate to="/login" />} />
                 <Route path="/forbidden" element={<NotAllowed />} />
             </Routes>
         </BrowserRouter>
