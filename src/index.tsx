@@ -1,4 +1,3 @@
-import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { ThemeProvider } from 'styled-components';
 
@@ -17,14 +16,11 @@ const root = ReactDOM.createRoot(
 );
 
 root.render(
-  <React.StrictMode>
-    <Web3ContextProvider>
-      <ThemeProvider theme={theme} >
-        <App />
-      </ThemeProvider>
-    </Web3ContextProvider>
-
-  </React.StrictMode>
+  <Web3ContextProvider>
+    <ThemeProvider theme={theme} >
+      <App />
+    </ThemeProvider>
+  </Web3ContextProvider>
 );
 
 // If you want to start measuring performance in your app, pass a function

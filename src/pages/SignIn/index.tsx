@@ -21,20 +21,13 @@ export const SignIn = () => {
             const isAdmin = await verifyIfIsAdmin()
             const isBeneficiary = await verifyIfIsBeneficiary()
 
-
             setIsLoading(false)
 
             if (isAdmin) {
-                toast.success('Bem-vindo administrador!', {
-                    position: "top-center",
-                });
                 return navigate('/admin')
             }
 
             if (isBeneficiary) {
-                toast.success('Bem-vindo beneficiário!', {
-                    position: "top-center",
-                });
                 return navigate('/beneficiary')
             }
 

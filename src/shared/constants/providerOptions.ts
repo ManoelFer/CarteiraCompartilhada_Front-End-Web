@@ -4,7 +4,7 @@ export const providerOptions = {
     walletconnect: {
         package: WalletConnectProvider, // required
         options: {
-            infuraId: "xxx" // required
+            infuraId: process.env.INFURA_API_KEY // required
         }
     }
 };

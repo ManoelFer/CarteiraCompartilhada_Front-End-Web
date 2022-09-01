@@ -1,7 +1,5 @@
 import styled from 'styled-components'
 
-import { backgroundBeneficiary } from 'assets'
-
 export const Container = styled.div`
     height: 100%;
     width: 100%;
@@ -9,12 +7,6 @@ export const Container = styled.div`
     display: flex;
     justify-content: center;
     align-items: center;
-
-
-    background-image: url(${backgroundBeneficiary});
-    background-position: center;
-    background-repeat: no-repeat;
-    background-size: cover;
 `
 export const TitleCard = styled.h1`
     color: ${({ theme }) => theme.colors.lettersWhite};

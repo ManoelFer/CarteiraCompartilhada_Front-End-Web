@@ -1,7 +1,6 @@
 import { useContext, useEffect } from "react"
 import { useNavigate } from "react-router-dom"
 
-import BigNumber from 'bignumber.js'
 import Swal from "sweetalert2"
 import Web3 from "web3"
 
@@ -12,6 +11,7 @@ import { GlassCard, Header, Lottie, SwalAlertComponent } from "components"
 import { Web3Context } from "context"
 
 import { Container, TitleCard, ContainerActions, ContentActions, CardActions, ImageActions, TitleActions } from "./styles"
+import { toast } from "react-toastify"
 
 
 export const Admin = () => {
@@ -39,6 +39,10 @@ export const Admin = () => {
             if (!isAdmin) {
                 disconnectWallet()
                 navigate('/login')
+            } else {
+                toast.success('Bem-vindo administrador!', {
+                    position: "top-center",
+                });
             }
         }
 
@@ -90,7 +94,7 @@ export const Admin = () => {
 
             try {
                 //@ts-ignore
-                await SharedWalletContractDeployed.methods.setBeneficiary(beneficiary, isActive, new BigNumber(balance)).send()
+                await SharedWalletContractDeployed.methods.setBeneficiary(beneficiary, isActive, Web3.utils.toBN(balance)).send()
 
                 setIsLoading(false)
                 Swal.fire({
@@ -121,6 +125,8 @@ export const Admin = () => {
                         popup: 'animate__animated animate__fadeOutUp'
                     }
                 })
+
+                console.log('Falha ao registrar beneficiário error: ', error)
             }
         }
 
@@ -171,7 +177,7 @@ export const Admin = () => {
 
             try {
                 //@ts-ignore
-                await SharedWalletContractDeployed.methods.setMaxTokensAllowed(new BigNumber(valueInputMaxTokenAllowed)).send()
+                await SharedWalletContractDeployed.methods.setMaxTokensAllowed(Web3.utils.toBN(valueInputMaxTokenAllowed)).send()
 
                 setIsLoading(false)
 
@@ -203,7 +209,7 @@ export const Admin = () => {
             setIsLoading(true)
 
             try {
-                await SharedWalletContractDeployed.methods.addTokens(currentAddress, new BigNumber(amount)).send()
+                await SharedWalletContractDeployed.methods.addTokens(currentAddress, Web3.utils.toBN(amount)).send()
 
                 await getTotalSupply()
 
@@ -212,7 +218,7 @@ export const Admin = () => {
                 return SwalAlertComponent({ icon: 'success', title: 'Family Coins Adicionados com sucesso!' })
             } catch (error) {
                 setIsLoading(false)
-                return SwalAlertComponent({ icon: 'success', title: 'Falha ao adicionar family coins!' })
+                return SwalAlertComponent({ icon: 'error', title: 'Falha ao adicionar family coins!' })
             }
         }
     }
@@ -252,7 +258,6 @@ export const Admin = () => {
 
     return (
         <Container>
-            <Header />
             <GlassCard>
                 <Lottie
                     animationData={adminAnimation}

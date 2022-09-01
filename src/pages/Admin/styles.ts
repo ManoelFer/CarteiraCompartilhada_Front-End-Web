@@ -1,23 +1,14 @@
 
 import styled from "styled-components";
 
-import { backgroundAdmin } from "assets";
-
 export const Container = styled.div`
-    height: 100%;
+    height: auto;
     width: 100%;
+
+    margin-top: 5%;
 
     display: flex;
     justify-content: center;
-    align-items: center;
-
-
-    background-image: url(${backgroundAdmin});
-    background-position: center;
-    background-repeat: no-repeat;
-    background-size: cover;
-
-    
 
     @media (max-width: 450px){
         h1, h3 {

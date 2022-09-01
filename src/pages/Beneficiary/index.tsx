@@ -3,16 +3,15 @@ import { useNavigate } from 'react-router-dom'
 
 import Web3 from 'web3'
 
-import SharedWallet from "contracts/SharedWalletContract.json"
-
 import { cryptoWalletAnimation } from 'assets'
 
-import { Button, GlassCard, Header, Lottie, SwalAlertComponent } from 'components'
+import { Button, GlassCard, Lottie, SwalAlertComponent } from 'components'
 
 import { Web3Context } from 'context'
 
 import { ContainerButton, TextCard, TitleCard, Container } from './styles'
 import { handleErrosInContract } from 'shared/helpers'
+import { toast } from 'react-toastify'
 
 
 export const Beneficiary = () => {
@@ -36,6 +35,10 @@ export const Beneficiary = () => {
             if (!isAdmin) {
                 disconnectWallet()
                 navigate('/login')
+            } else {
+                toast.success('Bem-vindo beneficiário!', {
+                    position: "top-center",
+                });
             }
         }
 
@@ -65,8 +68,6 @@ export const Beneficiary = () => {
 
     return (
         <Container>
-
-            <Header />
             <GlassCard>
                 <Lottie
                     animationData={cryptoWalletAnimation}

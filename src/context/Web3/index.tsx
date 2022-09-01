@@ -209,7 +209,7 @@ export function Web3ContextProvider({
     }
 
     async function addMoreFLs() {
-        return SharedWalletContractDeployed.methods.addTokens(currentAddress, new BigNumber(amount)).send()
+        return SharedWalletContractDeployed.methods.addTokens(currentAddress, Web3.utils.toBN(amount)).send()
     }
 
     return (
