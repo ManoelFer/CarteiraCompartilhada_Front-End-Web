@@ -17,15 +17,16 @@ export const Container = styled.div`
     padding: 50px;
     margin: 0px 20px 0px 20px;
     
-    @media (max-width: 1900px) {
+    @media (max-width: 1600px) {
         height: auto;
         padding: 40px;
+        margin-bottom: 5%;
     }
 
     @media (max-width: 450px){
         padding: 5px;
         height: 720px;
-        margin: 0px 20px 0px 20px;
+        margin: 0px 20px 70px 20px;
     }
 
 `

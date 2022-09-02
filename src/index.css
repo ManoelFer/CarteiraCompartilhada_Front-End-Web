@@ -19,3 +19,7 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+.swal2-input {
+  min-width: 279px;
+}

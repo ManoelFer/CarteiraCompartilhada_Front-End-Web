@@ -59,10 +59,13 @@ export const Beneficiary = () => {
 
         } catch (error) {
             setIsLoading(false)
+            SwalAlertComponent({ icon: 'error', title: 'Falha ao retirar mesada! Verifique o erro completo no console do navegador.' })
+            console.log('Falha ao retirar mesada! Error: ', error)
 
+            //TODO: Código para trazer erro específico, infelizmente não funciona com o infura, pois devemos trabalhar com web sockets
             //@ts-ignore
-            const errorMessageToJson = JSON.parse(error.message.replace('[ethjs-query] while formatting outputs from RPC', '').replace("'{", "{").replace("}'", "}").trim())
-            handleErrosInContract(errorMessageToJson.value.data.message)
+            // const errorMessageToJson = JSON.parse(error.message.replace('[ethjs-query] while formatting outputs from RPC', '').replace("'{", "{").replace("}'", "}").trim())
+            // handleErrosInContract(errorMessageToJson.value.data.message)
         }
     }
 

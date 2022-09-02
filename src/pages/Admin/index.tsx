@@ -1,18 +1,20 @@
+// @ts-nocheck
 import { useContext, useEffect } from "react"
 import { useNavigate } from "react-router-dom"
 
 import Swal from "sweetalert2"
+import withReactContent from 'sweetalert2-react-content'
+import { Formik, Form, Field, FormikProps, FormikBag, FormikErrors } from 'formik'
 import Web3 from "web3"
 
 import { addBeneficiary, addCoin, adminAnimation, isBeneficiaryIcon, maxAllowedIcon, pauseTransfers, unpauseIcon } from "assets"
 
-import { GlassCard, Header, Lottie, SwalAlertComponent } from "components"
+import { GlassCard, Lottie, SwalAlertComponent } from "components"
 
 import { Web3Context } from "context"
 
 import { Container, TitleCard, ContainerActions, ContentActions, CardActions, ImageActions, TitleActions } from "./styles"
 import { toast } from "react-toastify"
-
 
 export const Admin = () => {
     const navigate = useNavigate()
@@ -50,90 +52,134 @@ export const Admin = () => {
     }, [isLogged, isPaused, tryConnectAgain])
 
     const handleBeneficiary = async () => {
-        const { value: formValues } = await Swal.fire({
+        const ReactSwal = withReactContent(Swal)
+
+        type FormValues = { beneficiary: string, balance: string, status: string }
+        let formikRef: FormikProps<FormValues>
+
+        await ReactSwal.fire({
             title: 'Gerenciar Beneficiário',
-            html:
-                '<input id="beneficiary" class="swal2-input" placeholder="0x98bA764670D1AD97430E1E1e167ae0A379c4a6a3">' +
-                '<input id="type" class="swal2-input" placeholder="true or false">' +
-                '<input id="newValue" class="swal2-input" placeholder="1000000000000000000">',
-            focusConfirm: false,
+            heightAuto: false,
             showCancelButton: true,
             cancelButtonText: 'Cancelar',
-            preConfirm: () => {
-                //@ts-ignore
-                return { beneficiary: document.getElementById('beneficiary').value, isActive: document.getElementById('type').value, balance: document.getElementById('newValue').value }
+            confirmButtonText: 'Salvar',
+            html: (
+                <Formik<FormValues>
+                    innerRef={(ref) => (formikRef = ref)}
+                    initialValues={{ beneficiary: '', balance: '', status: '' }}
+                    validate={(values) => {
+                        const errors: FormikErrors<FormValues> = {}
+                        if (!Web3.utils.isAddress(values.beneficiary)) {
+                            errors.beneficiary = 'Inválido'
+                        }
+                        if (!values.balance) {
+                            errors.balance = 'Obrigatório'
+                        }
+                        if (isNaN(values.balance)) {
+                            errors.balance = 'Numérico'
+                        }
+
+                        if (!values.status) {
+                            errors.status = 'Obrigatório'
+                        }
+                        return errors
+                    }}
+                    onSubmit={() => { }}
+                >
+                    <Form>
+                        <Field
+                            type="text"
+                            className="swal2-input"
+                            name="beneficiary"
+                            placeholder="Endereço do beneficiário"
+                            onKeyPress={(event: React.KeyboardEvent<HTMLInputElement>) =>
+                                event.key === 'Enter' && ReactSwal.clickConfirm()
+                            }
+                        />
+                        <Field
+                            type="text"
+                            className="swal2-input"
+                            name="balance"
+                            placeholder="Adicionar saldo"
+                            onKeyPress={(event: React.KeyboardEvent<HTMLInputElement>) =>
+                                event.key === 'Enter' && ReactSwal.clickConfirm()
+                            }
+                        />
+                        <Field
+                            as="select"
+                            name="status"
+                            className="swal2-input"
+                            onKeyPress={(event: React.KeyboardEvent<HTMLInputElement>) =>
+                                event.key === 'Enter' && ReactSwal.clickConfirm()
+                            }
+                        >
+                            <option value="">Status do beneficiário</option>
+                            <option value="active">Ativado</option>
+                            <option value="desativado">Desativado</option>
+                        </Field>
+                    </Form>
+                </Formik>
+            ),
+            didOpen: () => {
+                Swal.getPopup().querySelector('input')?.focus()
             },
-            heightAuto: false
+            preConfirm: async () => {
+                await formikRef.submitForm()
+                if (formikRef.isValid) {
+                    return formikRef.values
+                } else {
+                    Swal.showValidationMessage(JSON.stringify(formikRef.errors))
+                }
+            },
+        }).then((result) => {
+            /* Read more about isConfirmed, isDenied below */
+            if (result.isConfirmed) {
+                sendBeneficiaryToRegister(result.value);
+            } else if (result.isDismissed) {
+                return Swal.fire({ title: 'As alterações não foram salvas', icon: 'info', heightAuto: false })
+            }
         })
 
-        //@ts-ignore
-        let { beneficiary, isActive, balance } = formValues
-
-        //convert to boolean
-        isActive = isActive === "true" ? true : false
-
-        if (!beneficiary || !isActive || !balance) {
-            return SwalAlertComponent({ icon: 'error', title: 'preencha todo formulário' })
-        }
-
-        if (!Web3.utils.isAddress(beneficiary)) {
-            return SwalAlertComponent({ icon: 'error', title: 'O endereço da carteira do beneficiário deve ser válido' })
-        }
-
-        if (typeof isActive !== "boolean") {
-            return SwalAlertComponent({ icon: 'error', title: 'O campo de ativação deve receber o valor true ou false' })
-        }
-
-        if (isNaN(balance)) {
-            return SwalAlertComponent({ icon: 'error', title: 'O campo do valor a ser liberado deve ser um valor numérico' })
-        }
-
-        //@ts-ignore
-        if (formValues) {
+        async function sendBeneficiaryToRegister({ beneficiary, balance, status }) {
             setIsLoading(true)
 
+            //Convert values before send
+            status = status === "active" ? true : false
+            balance = Web3.utils.toWei(balance, 'ether')
+
             try {
-                //@ts-ignore
-                await SharedWalletContractDeployed.methods.setBeneficiary(beneficiary, isActive, Web3.utils.toBN(balance)).send()
+                await SharedWalletContractDeployed.methods.setBeneficiary(beneficiary, status, Web3.utils.toBN(balance)).send()
 
                 setIsLoading(false)
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Beneficiário registrado com sucesso! ',
-                    showConfirmButton: false,
-                    timer: 3500,
-                    heightAuto: false,
-                    showClass: {
-                        popup: 'animate__animated animate__fadeInDown'
-                    },
-                    hideClass: {
-                        popup: 'animate__animated animate__fadeOutUp'
-                    }
-                })
+                SwalAlertComponent({ icon: 'success', title: 'Beneficiário registrado com sucesso!' })
+
             } catch (error) {
                 setIsLoading(false)
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Falha ao registrar beneficiário! ',
-                    showConfirmButton: false,
-                    timer: 3500,
-                    heightAuto: false,
-                    showClass: {
-                        popup: 'animate__animated animate__fadeInDown'
-                    },
-                    hideClass: {
-                        popup: 'animate__animated animate__fadeOutUp'
-                    }
-                })
 
+                SwalAlertComponent({ icon: 'error', title: 'Transação recusada ou falha ao registrar beneficiário!' })
                 console.log('Falha ao registrar beneficiário error: ', error)
             }
         }
-
     }
 
     const handleVerifyBeneficiary = async () => {
-        const { value: beneficiary } = await Swal.fire({
+        async function sendBeneficiaryToVerify(beneficiary) {
+            try {
+                const isBeneficiary = await verifyIfIsBeneficiary(beneficiary)
+
+                if (isBeneficiary) {
+                    return SwalAlertComponent({ icon: 'success', title: 'Este endereço é de um beneficiário' })
+                } else {
+                    return SwalAlertComponent({ icon: 'error', title: 'Este endereço não é de um beneficiário' })
+                }
+            } catch (error) {
+                SwalAlertComponent({ icon: 'error', title: 'Falha ao verificar endereço do beneficiário!' })
+                console.log('Falha ao verificar endereço do beneficiário! error: ', error)
+            }
+        }
+
+
+        await Swal.fire({
             title: 'Adicione o endereço do beneficiário',
             input: 'text',
             inputLabel: 'Endereço do beneficiário',
@@ -141,70 +187,75 @@ export const Admin = () => {
             heightAuto: false,
             showCancelButton: true,
             cancelButtonText: 'Cancelar',
+            inputValidator: (value) => {
+                if (!value) {
+                    return 'O campo do beneficiário é obrigatório!'
+                } else if (!Web3.utils.isAddress(value)) {
+                    return 'O endereço da carteira do beneficiário deve ser válido!'
+                }
+            }
+        }).then((result) => {
+            /* Read more about isConfirmed, isDenied below */
+            if (result.isConfirmed) {
+                sendBeneficiaryToVerify(result.value)
+            } else if (result.isDismissed) {
+                return Swal.fire({ title: 'As alterações não foram salvas', icon: 'info', heightAuto: false })
+            }
         })
-
-        if (beneficiary) {
-            if (!Web3.utils.isAddress(beneficiary)) {
-                return SwalAlertComponent({ icon: 'error', title: 'O endereço da carteira do beneficiário deve ser válido' })
-            }
-
-            const isBeneficiary = await verifyIfIsBeneficiary(beneficiary)
-
-            if (isBeneficiary) {
-                return SwalAlertComponent({ icon: 'success', title: 'Este endereço é de um beneficiário' })
-            } else {
-                return SwalAlertComponent({ icon: 'error', title: 'Este endereço não é de um beneficiário' })
-            }
-        }
     }
 
     const handleMaxFamilyCoins = async () => {
-        const { value: valueInputMaxTokenAllowed } = await Swal.fire({
-            title: 'Adicione a nova quantidade máxima de Family Coins permitida no contrato',
-            input: 'text',
-            inputLabel: 'Máximo de Family Coins em Wei',
-            inputPlaceholder: '900000000000000000000',
-            showCancelButton: true,
-            heightAuto: false
-        })
+        async function sendMaxFamilyCoins(valueInputMaxTokenAllowed) {
+            //Convert values before send
+            valueInputMaxTokenAllowed = Web3.utils.toWei(valueInputMaxTokenAllowed, 'ether')
 
-        if (valueInputMaxTokenAllowed) {
-            if (isNaN(valueInputMaxTokenAllowed)) {
-                return SwalAlertComponent({ icon: 'error', title: 'O input deve conter um valor numérico' })
-            }
+            if (valueInputMaxTokenAllowed) {
+                setIsLoading(true)
 
-            setIsLoading(true)
+                try {
+                    await SharedWalletContractDeployed.methods.setMaxTokensAllowed(Web3.utils.toBN(valueInputMaxTokenAllowed)).send()
 
-            try {
-                //@ts-ignore
-                await SharedWalletContractDeployed.methods.setMaxTokensAllowed(Web3.utils.toBN(valueInputMaxTokenAllowed)).send()
+                    setIsLoading(false)
 
-                setIsLoading(false)
+                    return SwalAlertComponent({ icon: 'success', title: 'Número máximo de FLs modificado com sucesso!' })
+                } catch (error) {
+                    setIsLoading(false)
 
-                return SwalAlertComponent({ icon: 'success', title: 'Número máximo de FLs modificado com sucesso!' })
-            } catch (error) {
-                setIsLoading(false)
-
-                return SwalAlertComponent({ icon: 'error', title: 'Falha ao modificar número máximo de FLs!' })
+                    return SwalAlertComponent({ icon: 'error', title: 'Transação recusada ou falha ao modificar número máximo de FLs!' })
+                }
             }
         }
+
+        await Swal.fire({
+            title: 'Adicione a nova quantidade máxima de Family Coins permitida no contrato',
+            input: 'text',
+            inputLabel: 'Máximo de Family Coins permitidos no contrato',
+            inputPlaceholder: '900',
+            showCancelButton: true,
+            heightAuto: false,
+            inputValidator: (value) => {
+                if (!value) {
+                    return 'O input é obrigatório!'
+                }
+                if (isNaN(value)) {
+                    return 'O input deve conter um valor numérico!'
+                }
+            }
+        }).then((result) => {
+            /* Read more about isConfirmed, isDenied below */
+            if (result.isConfirmed) {
+                sendMaxFamilyCoins(result.value)
+            } else if (result.isDismissed) {
+                return Swal.fire({ title: 'As alterações não foram salvas', icon: 'info', heightAuto: false })
+            }
+        })
     }
 
     const handleAddFamilyCoins = async () => {
-        const { value: amount } = await Swal.fire({
-            title: 'Adicione a quantidade em wei de Family Coins',
-            input: 'text',
-            inputLabel: 'Valor de Family Coins em Wei',
-            inputPlaceholder: '1000000000000000000',
-            heightAuto: false,
-            showCancelButton: true,
-            cancelButtonText: 'Cancelar',
-        })
 
-        if (amount) {
-            if (isNaN(amount)) {
-                return SwalAlertComponent({ icon: 'error', title: 'O input deve conter um valor numérico' })
-            }
+        async function sendFamilyCoins(amount) {
+            //Convert values before send
+            amount = Web3.utils.toWei(amount, 'ether')
 
             setIsLoading(true)
 
@@ -218,15 +269,39 @@ export const Admin = () => {
                 return SwalAlertComponent({ icon: 'success', title: 'Family Coins Adicionados com sucesso!' })
             } catch (error) {
                 setIsLoading(false)
-                return SwalAlertComponent({ icon: 'error', title: 'Falha ao adicionar family coins!' })
+                return SwalAlertComponent({ icon: 'error', title: 'Transação recusada ou Falha ao adicionar family coins!' })
             }
         }
+
+        await Swal.fire({
+            title: 'Adicionar Family Coins',
+            input: 'text',
+            inputLabel: 'Valor de Family Coins',
+            inputPlaceholder: '100',
+            heightAuto: false,
+            showCancelButton: true,
+            cancelButtonText: 'Cancelar',
+            inputValidator: (value) => {
+                if (!value) {
+                    return 'O input é obrigatório!'
+                }
+                if (isNaN(value)) {
+                    return 'O input deve conter um valor numérico!'
+                }
+
+            }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                sendFamilyCoins(result.value)
+            } else if (result.isDismissed) {
+                return Swal.fire({ title: 'As alterações não foram salvas', icon: 'info', heightAuto: false })
+            }
+        })
     }
 
     const handlePause = async () => {
         setIsLoading(true)
         try {
-            //@ts-ignore
             await SharedWalletContractDeployed.methods.pause().send()
 
             await verifyIfIsPaused()
@@ -235,14 +310,13 @@ export const Admin = () => {
             return SwalAlertComponent({ icon: 'success', title: 'Transações pausadas!' })
         } catch (error) {
             setIsLoading(false)
-            return SwalAlertComponent({ icon: 'success', title: 'Falha ao pausar as transações!' })
+            return SwalAlertComponent({ icon: 'error', title: 'Transação recusada ou falha ao pausar as transações!' })
         }
     }
 
     const handleUnpause = async () => {
         setIsLoading(true)
         try {
-            //@ts-ignore
             await SharedWalletContractDeployed.methods.unpause().send()
 
             await verifyIfIsPaused()
@@ -252,7 +326,7 @@ export const Admin = () => {
             return SwalAlertComponent({ icon: 'success', title: 'Transações despausadas!' })
         } catch (error) {
             setIsLoading(false)
-            return SwalAlertComponent({ icon: 'success', title: 'Falha ao despausar as transações!' })
+            return SwalAlertComponent({ icon: 'error', title: 'Transação recusada ou falha ao despausar as transações!' })
         }
     }
 

@@ -53,7 +53,7 @@ export const ContentActions = styled.div`
         background: ${({ theme }) => theme.colors.backgroundCardActionsHover}; 
     }
 
-    @media (max-width: 1900px) {
+    @media (max-width: 1600px) {
         flex-direction: column;
         justify-content: start;
         align-items: center;

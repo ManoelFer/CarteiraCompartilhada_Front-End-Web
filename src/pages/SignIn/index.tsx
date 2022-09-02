@@ -14,7 +14,7 @@ import { Container, ContainerButton, TextCard, TitleCard } from './styles'
 
 export const SignIn = () => {
     const navigate = useNavigate()
-    const { connectWallet, verifyIfIsBeneficiary, verifyIfIsAdmin, setIsLoading, currentAddress, tryConnectAgain } = useContext(Web3Context)
+    const { connectWallet, disconnectWallet, verifyIfIsBeneficiary, verifyIfIsAdmin, setIsLoading, currentAddress, tryConnectAgain, isLogged } = useContext(Web3Context)
 
     useEffect(() => {
         async function updatedAccount() {
@@ -31,11 +31,18 @@ export const SignIn = () => {
                 return navigate('/beneficiary')
             }
 
-            if (currentAddress) SwalAlertComponent({ icon: 'warning', title: 'Falha no Login', text: 'Para logar é necessário um endereço de Administrador ou Beneficiário! Caso você tenha um endereço de Administrador ou Beneficiário, mude e tente conectar novamente!' })
+            if (currentAddress) {
+                SwalAlertComponent({ icon: 'warning', title: 'Falha no Login', text: 'Para logar é necessário um endereço de Administrador ou Beneficiário! Caso você tenha um endereço de Administrador ou Beneficiário, mude e tente conectar novamente!' })
+                await disconnectWallet()
+            }
         }
 
-        if (currentAddress || tryConnectAgain) updatedAccount()
-    }, [currentAddress, tryConnectAgain])
+        if (isLogged) {
+            if (currentAddress || tryConnectAgain) updatedAccount()
+        }
+
+
+    }, [currentAddress, tryConnectAgain, isLogged])
 
     const handleNavigate = async () => {
         setIsLoading(true)
